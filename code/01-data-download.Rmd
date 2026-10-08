@@ -1,0 +1,38 @@
+---
+title: "01-data-download"
+output: html_document
+date: "2026-10-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{bash}
+cd ../data/raw
+pwd
+
+curl -O http://owl.fish.washington.edu/nightingales/C_gigas/filtered_174gm_A_BiGosperm_L006_R1.fastq.gz
+
+gunzip filtered_174gm_A_BiGosperm_L006_R1.fastq.gz
+
+```
+
+Curl is a pre-downloaded program that allows you to download data that exists on the web.
+
+relative path is best because it can be used in any computer vs. absolute path which would only work in Raven
+
+..except if downloading a software. Absolute path is good and really the only option for a software because that's where the software lives
+
+##FastQC and running software
+
+/home/shared/FastQC-0.12.1/fastqc runs the software
+
+Raven programs are all stored on /home/shared/..
+
+```{bash}
+/home/shared/FastQC-0.12.1/fastqc -h
+/home/shared/FastQC-0.12.1/fastqc ../data/raw/filtered_174gm_A_BiGosperm_L006_R1.fastq
+```
+
+best practice is putting output files into output folder
