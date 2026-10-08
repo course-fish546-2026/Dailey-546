@@ -1,4 +1,4 @@
-# <Dailey> · FISH 546 project
+# Dailey · FISH 546 project
 
 > How does the reproductive microbiome differ between zoo and wild female polar bears? I plan on using raw 16s data sequenced from swabs of different reproductive sites on both wild and zoo polar bears. These samples were collected as part of my MS research. 
 
