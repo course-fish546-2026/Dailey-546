@@ -1,0 +1,51 @@
+---
+title: "Week 01 — NCBI Blast"
+author: "Kenna Dailey"
+date: today
+---
+
+<!--
+Before you push, check:
+  [ ] this .qmd AND its rendered .html are both committed
+  [ ] rendered from a clean session (Session > Restart R, then Render)
+  [ ] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
+  [ ] tables and figures are saved under output/weekNN/, not only printed here
+  [ ] nothing under data/raw/ is committed
+  [ ] software, platform, and container/environment are named
+  [ ] the commit link is posted as a comment on your Project Proposal issue
+Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entry-rubric
+-->
+
+## 1. This week's analysis
+
+<!-- The week's exercise or your project step: commands, code, outputs, and what they mean.
+     Link the files in output/weekNN/. Name the platform (laptop / Raven / Klone) and software versions. -->
+
+## 2. Reflection questions
+
+1. What does BLAST compare, and what do percent identity, query coverage, and e-value each contribute?
+
+BLAST takes a biological sequence, whether that's DNA, RNA, or protein, and compares it against a database of sequences to identify similarities or matches. This is a super useful tool for things like assigning taxonomy to nucleotide sequences. Percent identity, query coverage, and e-value are metrics that help the user better understand the nature and strength of the similarity between their query sequence and the BLAST hits.
+Percent identity is the percentage of aligned positions that are identical between the query sequence and the BLAST hit. Query coverage is the percentage of the query sequence that is included in the alignment with the database sequence. Lastly, the e-value, or "expectation value," estimates the number of matches with a similar or better alignment score that would be expected to occur by random chance when searching a database. A low e-value suggests that the match is statistically significant and unlikely to be due to chance.
+
+2. Why can the top BLAST hit be misleading?
+
+A high percent identity, even at 100%, does not necessarily mean that the query sequence belongs to the species identified in the top BLAST hit. There are several other factors that need to be considered and scrutinized before making that determination.
+For example, a query sequence with 100% identity to Phoca vitulina does not automatically mean that the sequence belongs to a harbor seal. In this case, the query might only span 50 bp, leaving out a lot of potentially important information needed to confidently identify the species. The sequence could actually belong to another species within the genus Phoca, such as Phoca largha (spotted seal), that shares those exact 50 bp but has differences elsewhere in its DNA that would allow us to distinguish the two species.
+The e-value helps provide additional context by estimating how many matches with a similar or better alignment score could be expected by chance. A low e-value suggests that the match is statistically significant, but it does not necessarily confirm the species identity. This is why it's important to consider percent identity, query coverage, e-value, and whether other species have similarly strong matches before making a taxonomic assignment.
+
+3. What will be the endpoint of your quarter project if everything goes well?
+
+## 3. Project progress
+
+<!-- What moved this week, with links to commits, files, or figures. -->
+
+## 4. Where I'm stuck
+
+<!-- Specific problems, what you tried, and any linked Help Request. Or "none". -->
+
+## 5. Next week
+
+<!-- One to three concrete, one-week-sized goals. -->
+
+- 
