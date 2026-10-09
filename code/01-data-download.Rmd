@@ -9,6 +9,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{bash}
+
+  
 cd ../data/raw
 pwd
 
