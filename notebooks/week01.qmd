@@ -23,7 +23,7 @@ Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entr
 <!-- The week's exercise or your project step: commands, code, outputs, and what they mean.
      Link the files in output/weekNN/. Name the platform (laptop / Raven / Klone) and software versions. -->
 ```
-Done in Raven
+I first tried this out in Raven using the NCBI blast workflow from GitHub, then I also tried out using the NCBI web blast to see if I was getting the same results. For both, I used the swissprot database. Information on query length and other info can be seen in the screenshot below of the NCBI search I did on the web.
 
 ```{bash}
 cd ./code #cd changes the directory i'm currently in
@@ -32,7 +32,7 @@ git clone https://github.com/sr320/workflow-annotation.git #then this code just 
 cd workflow-annotation
 ls #lists files in the directory I'm currently in, making sure i did everything right.
 
-bash blast2slim.sh -i example_transcripts.fasta --threads 2 -o test
+bash blast2slim.sh -i example_transcripts.fasta --threads 2 -o test #test to see if the script is working, it was but then was throwing errors about virtual python environment so the next few lines of code are me trying to fix that
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -40,8 +40,7 @@ source .venv/bin/activate
 
 python -m pip install pandas requests goatools matplotlib
 
-bash blast2slim.sh -i query.fasta --threads 2 -o week01_annotation
-
+bash blast2slim.sh -i query.fasta --threads 2 -o week01_annotation #it's working, now i can actually use the workflow script
 
 ```
 
@@ -59,13 +58,15 @@ A high percent identity, even at 100%, does not necessarily mean that the query 
 
 3.  What will be the endpoint of your quarter project if everything goes well?
 
+The end point of my quarter project would be to have a repo that makes everything I have done for this project reproducible following all best data practices, this is something I'm really excited about and think will be extraordinarily helpful for my MS thesis. In terms of more concrete deliverables, ideally having my raw data initially processed (trimmed, merged, etc.) and then some figures that demonstrate differences between the two subpopulations, differences in diversity between anatomical sites on the same individual.
+
 ## 3. Project progress
 
 With lots of help, my project data was downloaded into my repo on Raven. This is super exciting because now it's just waiting to be unzipped and messed around with!
 
 ## 4. Where I'm stuck
 
-I struggled pretty hard with getting BLAST to run in Raven, but it just took some trouble shooting and patience.
+I struggled pretty hard with getting BLAST to run in Raven, but it just took some trouble shooting and patience. I had a help request [here](https://github.com/sr320/course-fish546-2026/issues/30) and got unstuck which is awesome
 
 ## 5. Next week
 
