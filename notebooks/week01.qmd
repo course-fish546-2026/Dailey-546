@@ -9,24 +9,27 @@ date: today
 Before you push, check:
   [ ] this .qmd AND its rendered .html are both committed
   [ ] rendered from a clean session (Session > Restart R, then Render)
-  [ ] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
-  [ ] tables and figures are saved under output/weekNN/, not only printed here
-  [ ] nothing under data/raw/ is committed
-  [ ] software, platform, and container/environment are named
+  [x] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
+  [x] tables and figures are saved under output/weekNN/, not only printed here
+  [x] nothing under data/raw/ is committed
+  [x] software, platform, and container/environment are named
   [ ] the commit link is posted as a comment on your Project Proposal issue
 Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entry-rubric
 -->
 ```
 ## 1. This week's analysis
 
-```{=html}
-<!-- The week's exercise or your project step: commands, code, outputs, and what they mean.
-     Link the files in output/weekNN/. Name the platform (laptop / Raven / Klone) and software versions. -->
+```         
+platform: x86_64-pc-linux-gnu Raven
+R version: 4.2.3 (2023-03-15)
 ```
+
 I first tried this out in Raven using the NCBI blast workflow from GitHub, then I also tried out using the NCBI web blast to see if I was getting the same results. For both, I used the swissprot database. Information on query length and other info can be seen in the screenshot below of the NCBI search I did on the web.
 
 ```{bash}
-cd ./code #cd changes the directory i'm currently in
+cd ~/Dailey-546/code
+#cd changes the directory i'm currently in, I want to put the ncbi workflow script in code
+
 git clone https://github.com/sr320/workflow-annotation.git #then this code just borrows the NCBI blast workflow from GitHub
 
 cd workflow-annotation
@@ -40,11 +43,16 @@ source .venv/bin/activate
 
 python -m pip install pandas requests goatools matplotlib
 
-bash blast2slim.sh -i query.fasta --threads 2 -o week01_annotation #it's working, now i can actually use the workflow script
+bash blast2slim.sh -i query.fasta --threads 2 -o week01_annotation #it's working, now i can actually use the workflow script and generate a tsv 
+
 
 ```
 
 ![](images/BLAST%201008.png)
+
+![](images/blast1009.png)
+
+Both the NCBI web blastx and the blastx using the script in Raven gave the same hits. The top hit was for a sequence that was a mitochondrial protein for *Phoca vitulina*, a harbor seal with \~89.5% similarity. This doesn't necessarily mean this is a harbor seal. What this does tell us, is the query unknown sequence likely includes the COI gene, and it is similar to a harbor seal. There is a chance it is a harbor seal, especially with the low E value. However, COI is also highly conserved across vertebrates, which makes the BLAST hits biologically make sense; there are several hits that how a low E value but hover in the 80-90ish percent identity range. The query sequence of COI is similar to many species just by nature of being conserved, so identity is pretty hard to nail down. I tried a few other databases, but didn't see any big jumps in percent identity or e-value that would make me think it might be better.
 
 ## 2. Reflection questions
 
@@ -54,7 +62,7 @@ BLAST takes a biological sequence, whether that's DNA, RNA, or protein, and comp
 
 2.  Why can the top BLAST hit be misleading?
 
-A high percent identity, even at 100%, does not necessarily mean that the query sequence belongs to the species identified in the top BLAST hit. There are several other factors that need to be considered and scrutinized before making that determination. For example, a query sequence with 100% identity to Phoca vitulina does not automatically mean that the sequence belongs to a harbor seal. In this case, the query might only span 50 bp, leaving out a lot of potentially important information needed to confidently identify the species. The sequence could actually belong to another species within the genus Phoca, such as Phoca largha (spotted seal), that shares those exact 50 bp but has differences elsewhere in its DNA that would allow us to distinguish the two species. The e-value helps provide additional context by estimating how many matches with a similar or better alignment score could be expected by chance. A low e-value suggests that the match is statistically significant, but it does not necessarily confirm the species identity. This is why it's important to consider percent identity, query coverage, e-value, and whether other species have similarly strong matches before making a taxonomic assignment.
+A high percent identity, even at 100%, does not necessarily mean that the query sequence belongs to the species identified in the top BLAST hit. There are several other factors that need to be considered and scrutinized before making that determination. For example, a query sequence with 100% identity to *Phoca vitulina* does not automatically mean that the sequence belongs to a harbor seal. In this case, the query might only span 50 bp, leaving out a lot of potentially important information needed to confidently identify the species. The sequence could actually belong to another species within the genus *Phoca*, such as *Phoca largha* (spotted seal), that shares those exact 50 bp but has differences elsewhere in its DNA that would allow us to distinguish the two species. The e-value helps provide additional context by estimating how many matches with a similar or better alignment score could be expected by chance. A low e-value suggests that the match is statistically significant, but it does not necessarily confirm the species identity. This is why it's important to consider percent identity, query coverage, e-value, and whether other species have similarly strong matches before making a taxonomic assignment.
 
 3.  What will be the endpoint of your quarter project if everything goes well?
 
@@ -66,8 +74,10 @@ With lots of help, my project data was downloaded into my repo on Raven. This is
 
 ## 4. Where I'm stuck
 
-I struggled pretty hard with getting BLAST to run in Raven, but it just took some trouble shooting and patience. I had a help request [here](https://github.com/sr320/course-fish546-2026/issues/30) and got unstuck which is awesome
+I struggled pretty hard with getting BLAST to run in Raven, but it just took some trouble shooting and patience. Essentially I was running blastn -remote and it was taking a really long time and just wasn't yielding any results. The code itself was working, but the issue was that I was waiting in a long queue. I had a help request [here](https://github.com/sr320/course-fish546-2026/issues/30) and got unstuck which is awesome, the fix was creating a local database so that I did not have to wait in the queue.
+
+I also found myself working in the terminal to try out pieces of code first and to move around through directories before realizing I had moved myself all around without actually including that in my code, so that is something to work on.
 
 ## 5. Next week
 
-I want to unzip (untar?) my files, run fastqc on my own sequencing data and identify how/where to trim the reads. After trimming, it would be great to merge and denoise since I think that will be the next step in getting my data ready for more work!
+I want to unzip (untar?) my files, run fastqc on my own sequencing data and identify how/where to trim the reads. After trimming, it would be great to merge and denoise since I think that will be the next step in getting my data ready for actual analysis!
