@@ -26,27 +26,65 @@ R version: 4.2.3 (2023-03-15)
 
 I first tried this out in Raven using the NCBI blast workflow from GitHub, then I also tried out using the NCBI web blast to see if I was getting the same results. For both, I used the swissprot database. Information on query length and other info can be seen in the screenshot below of the NCBI search I did on the web.
 
+
+# Make database
+
+
 ```{bash}
-cd ~/Dailey-546/code
-#cd changes the directory i'm currently in, I want to put the ncbi workflow script in code
+cd ../data
+RELEASE=r2026_03    # check https://www.uniprot.org/help/release-statistics
 
-git clone https://github.com/sr320/workflow-annotation.git #then this code just borrows the NCBI blast workflow from GitHub
+curl -O https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+mv uniprot_sprot.fasta.gz uniprot_sprot_${RELEASE}.fasta.gz
+gunzip -k uniprot_sprot_${RELEASE}.fasta.gz
 
-cd workflow-annotation
-ls #lists files in the directory I'm currently in, making sure i did everything right.
-
-bash blast2slim.sh -i example_transcripts.fasta --threads 2 -o test #test to see if the script is working, it was but then was throwing errors about virtual python environment so the next few lines of code are me trying to fix that
-
-python3 -m venv .venv
-source .venv/bin/activate
-source .venv/bin/activate
-
-python -m pip install pandas requests goatools matplotlib
-
-bash blast2slim.sh -i query.fasta --threads 2 -o week01_annotation #it's working, now i can actually use the workflow script and generate a tsv 
-
-
+mkdir -p ../blastdb
+makeblastdb \
+-in ../data/uniprot_sprot_${RELEASE}.fasta \
+-dbtype prot \
+-out ../blastdb/uniprot_sprot_${RELEASE}
 ```
+
+
+```{bash}
+curl -k https://eagle.fish.washington.edu/QPX_genome/QPX_v017.fasta \
+> ../data/QPX_v017.fasta
+
+grep -c ">" ../data/QPX_v017.fasta    # how many sequences?
+
+RELEASE=r2026_03 
+blastx \
+-query ../data/QPX_v017.fasta \
+-db ../blastdb/uniprot_sprot_${RELEASE} \
+-out ../output/qpx-uniprot_blastx.tab \
+-evalue 1E-20 \
+-num_threads 20 \
+-max_target_seqs 1 \
+-outfmt 6
+
+
+head ../output/qpx-uniprot_blastx.tab
+```
+
+
+
+
+# Local blast 
+
+```{bash}
+/home/shared/ncbi-blast-2.15.0+/bin/blastx \
+-query ../data/example_transcripts.fasta \
+-db /home/shared/blast_dbs/20210613_ncbi_sp_v5 \
+-out ../output/week1/example_blastx.txt
+```
+
+
+
+
+
+
+
+
 
 ![](images/BLAST%201008.png)
 
