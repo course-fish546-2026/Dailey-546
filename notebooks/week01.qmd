@@ -20,6 +20,11 @@ Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entr
 
 <!-- The week's exercise or your project step: commands, code, outputs, and what they mean.
      Link the files in output/weekNN/. Name the platform (laptop / Raven / Klone) and software versions. -->
+```{bash}
+
+
+```
+     
 
 ## 2. Reflection questions
 
@@ -46,6 +51,7 @@ The e-value helps provide additional context by estimating how many matches with
 
 ## 5. Next week
 
-<!-- One to three concrete, one-week-sized goals. -->
+I want to unzip (untar?) my files, run fastqc on my own sequencing data and identify how/where to trim the reads.
+After trimming, it would be great to merge and denoise since I think that will be the next step in getting my data ready for more work! 
 
 - 
