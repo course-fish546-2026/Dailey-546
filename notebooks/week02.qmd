@@ -1,7 +1,7 @@
 ---
 title: "Week 02 -- FASTQ Quality Control"
 author: "Kenna Dailey"
-date: 10/15/2026
+date: 10/21/2026
 ---
 
 ```{=html}
@@ -71,6 +71,8 @@ md5sum ../data/raw/PB01_L01_S3_R2_001.fastq
 
 6.  Write a one-paragraph decision: proceed, trim more, exclude a sample, or investigate.
 
+I'd like to walk through trimming more in class this coming Thursday so I can be sure I'm understanding the steps. I saw using the shared software fastp but I have also heard of using dada2 for trimming so I'm unsure the pros and cons of both!
+
 ## 2. Reflection questions
 
 1.  What does a per-base quality plot tell you, and what does it not tell you?
@@ -83,7 +85,7 @@ Trimming is useful for removing artificial adapter sequences introduced during l
 
 3.  For your project, name the raw input format, the first QC step, and the first downstream analysis step.
 
-For my project, my input is paired end 16s reads with rRNA sequences. My first QC step is running fastqc or multiqc (after checking out the first couple lines with head to make sure it looks correct). Then I believe my next step is trimming, which involves using the dada2 package.
+For my project, my input is paired end 16s reads with rRNA sequences. My first QC step is running fastqc or multiqc (after checking out the first couple lines with head to make sure it looks correct). Then I believe my next step is merging paired end reads, denoising to get ASVs, removing chimeras, and assigning taxonomy to representative sequences (ASVs)
 
 ## 3. Project progress
 
