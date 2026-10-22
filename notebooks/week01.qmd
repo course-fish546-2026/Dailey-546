@@ -26,9 +26,7 @@ R version: 4.2.3 (2023-03-15)
 
 I first tried this out in Raven using the NCBI blast workflow from GitHub, then I also tried out using the NCBI web blast to see if I was getting the same results. For both, I used the swissprot database. Information on query length and other info can be seen in the screenshot below of the NCBI search I did on the web.
 
-
 # Make database
-
 
 ```{bash}
 cd ../data
@@ -44,7 +42,6 @@ makeblastdb \
 -dbtype prot \
 -out ../blastdb/uniprot_sprot_${RELEASE}
 ```
-
 
 ```{bash}
 curl -k https://eagle.fish.washington.edu/QPX_genome/QPX_v017.fasta \
@@ -66,10 +63,7 @@ blastx \
 head ../output/qpx-uniprot_blastx.tab
 ```
 
-
-
-
-# Local blast 
+# Local blast
 
 ```{bash}
 /home/shared/ncbi-blast-2.15.0+/bin/blastx \
@@ -77,14 +71,6 @@ head ../output/qpx-uniprot_blastx.tab
 -db /home/shared/blast_dbs/20210613_ncbi_sp_v5 \
 -out ../output/week1/example_blastx.txt
 ```
-
-
-
-
-
-
-
-
 
 ![](images/BLAST%201008.png)
 
