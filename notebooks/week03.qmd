@@ -4,7 +4,6 @@ editor: visual
 date: 10/22/26
 ---
 
-
 \-\--
 
 \<!\--
@@ -31,30 +30,93 @@ Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entr
 
 \## 1. This week's analysis
 
-\<!\-- The week's exercise or your project step: commands, code, outputs, and what they mean.
+```{bash}
+mkdir ~/Dailey-546/output/week3/03.2-metabarcoding-workflow
 
-Link the files in output/weekNN/. Name the platform (laptop / Raven / Klone) and software versions. \--\>
+```
+
+```{bash}
+#opening qiime2, giving it the manifest and how to read the manifest (input-format) so it knows where my data lives. Using a qiime2 tool and putting the output from into week 3 output folder for this workflow. 
+
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ../output/week3/03.2-metabarcoding-workflow
+
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path ~/Dailey-546/data/manifest.tsv \
+  --input-format PairedEndFastqManifestPhred33V2 \
+  --output-path demux.qza
+```
+
+```{bash}
+#visualizing read counts per sample in qiime
+#nothing trimmed or changed yet
+
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ../output/week3/03.2-metabarcoding-workflow
+
+qiime demux summarize \
+  --i-data demux.qza \
+  --o-visualization demux.qzv
+```
+Primers are  S-D-Bact-0341-b-S-17/S-D-Bact-0785-a-A-21.
+```{bash}
+#trimming
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ../output/week3/03.2-metabarcoding-workflow
+
+qiime cutadapt trim-paired \
+  --i-demultiplexed-sequences demux.qza \
+  --p-front-f "CCTACGGGNGGCWGCAG" \
+  --p-front-r "GACTACHVGGGTATCTAATCC" \
+  --p-discard-untrimmed \
+  --p-cores 8 \
+  --o-trimmed-sequences 16s-demux.qza \
+  --o-stats 16s-cutadapt-stats.qza
+```
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ../output/week3/03.2-metabarcoding-workflow
+
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs 16s-demux.qza \
+  --p-trunc-len-f 270 \
+  --p-trunc-len-r 200 \
+  --p-n-threads 16 \
+  --o-table 16s-table.qza \
+  --o-representative-sequences 16s-rep-seqs.qza \
+  --o-denoising-stats 16s-dada2-stats.qza \
+  --o-base-transition-stats 16s-dada2-error-model.qza
+```
 
 \## 2. Reflection questions
 
-<!-- The 2–3 questions from this week's lecture page, answered with reasoning. -->
+1.  What is the difference between mapping reads to a reference and assembling reads without one?
 
-1\.
+Assembling reads without a reference (de novo assembly) reconstructs longer DNA sequences by identifying overlaps among shorter reads and joining them together without any reference genome. Mapping aligns reads to an existing reference genome to determine where they likely originated.
 
-2\.
+2.  What intermediate summary would you inspect before trusting a mapping or quantification result?
+It is important to check the number of input reads, number or proportion mapped, the output file size and format, check out asmall preview of the result, and also look at logs or summary reports.
 
-3\.
+3.  What is the smallest meaningful workflow slice you can run for your project this week?
+
+I think the smallest workflow slice would be to get my project reads to a place where they are ready to be used for more complex analyses, so importing into qiime, trimming, and cleaning up the reads with dada2. Each step is more processing intensive than I expected and takes a lot of time (typing this while I wait on my dada2 denoising) so I think getting my reads prepared for visualizations and analysis is a good step.
 
 \## 3. Project progress
 
-<!-- What moved this week, with links to commits, files, or figures. -->
+Super excited on the progress I made this week! I now understand how to access Hyak if needed for my project thanks to the in class walkthrough on Thursday, which feels super helpful for my project in case I need it. I also started working through the basic metabarcoding workflow provided for 18S, but am hoping to apply it to my data which is 16s v3-v4. So far, I have used QIIME2 for the first time, made a manifest and successfully applied the manifest in QIIME2, and made my first visualization which is a check of sample read counts. I trimmed my reads and cleaned them using DADA2.
 
 \## 4. Where I'm stuck
 
-<!-- Specific problems, what you tried, and any linked Help Request. Or "none". -->
+Nothing yet
 
 \## 5. Next week
 
-<!-- One to three concrete, one-week-sized goals. -->
+I want to download a reference database, assign taxonomy, and make visualizations (taxa bar plot). I would also like to try more tools in QIIME, like calculating alpha diversity.
+
 
 \-

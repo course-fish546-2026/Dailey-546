@@ -13,3 +13,6 @@ data/raw/*
 .DS_Store
 Thumbs.db
 blastdb
+# qiime reads that are crazy big
+output/week3/03.2-metabarcoding-workflow/demux.qza
+output/week3/03.2-metabarcoding-workflow/16s-demux.qza
