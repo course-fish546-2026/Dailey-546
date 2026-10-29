@@ -61,7 +61,9 @@ qiime demux summarize \
   --i-data demux.qza \
   --o-visualization demux.qzv
 ```
-Primers are  S-D-Bact-0341-b-S-17/S-D-Bact-0785-a-A-21.
+
+Primers are S-D-Bact-0341-b-S-17/S-D-Bact-0785-a-A-21.
+
 ```{bash}
 #trimming
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
@@ -77,6 +79,7 @@ qiime cutadapt trim-paired \
   --o-trimmed-sequences 16s-demux.qza \
   --o-stats 16s-cutadapt-stats.qza
 ```
+
 ```{bash}
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
 conda activate qiime2-2026.7
@@ -92,6 +95,7 @@ qiime dada2 denoise-paired \
   --o-denoising-stats 16s-dada2-stats.qza \
   --o-base-transition-stats 16s-dada2-error-model.qza
 ```
+
 ```{bash}
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
 conda activate qiime2-2026.7
@@ -101,6 +105,7 @@ qiime metadata tabulate \
   --m-input-file 16s-dada2-stats.qza \
   --o-visualization 16s-dada2-stats.qzv
 ```
+
 ```{bash}
 #downloading SILVA database, which is the reference database that is often best for 16s data. This is not classifier trained for my specific primers, so it won't be specific to the V3-V4 region I targeted
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
@@ -116,6 +121,7 @@ if [ ! -f silva-138.2-seqs.qza ] || [ ! -f silva-138.2-taxonomy.qza ]; then
     --o-silva-taxonomy silva-138.2-taxonomy.qza
 fi
 ```
+
 ```{bash}
 #
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
@@ -133,6 +139,31 @@ qiime feature-classifier classify-consensus-vsearch \
   --o-search-results 16s-vsearch-hits.qza
 ```
 
+```{bash}
+
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+qiime tools peek ../data/sepp-refs-silva-128.qza
+
+
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+qiime tools peek ../data/silva-138.2-classifier_klind.qza
+
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+qiime feature-classifier classify-sklearn \
+  --i-classifier /home/shared/8TB_HDD_03/mdailey2/Dailey-546/data/silva-138.2-classifier_klind.qza \
+  --i-reads ../output/week3/03.2-metabarcoding-workflow/16s-rep-seqs.qza \
+  --p-n-jobs 16 \
+  --o-classification taxonomy.qza
+```
 
 \## 2. Reflection questions
 
@@ -140,8 +171,7 @@ qiime feature-classifier classify-consensus-vsearch \
 
 Assembling reads without a reference (de novo assembly) reconstructs longer DNA sequences by identifying overlaps among shorter reads and joining them together without any reference genome. Mapping aligns reads to an existing reference genome to determine where they likely originated.
 
-2.  What intermediate summary would you inspect before trusting a mapping or quantification result?
-It is important to check the number of input reads, number or proportion mapped, the output file size and format, check out asmall preview of the result, and also look at logs or summary reports.
+2.  What intermediate summary would you inspect before trusting a mapping or quantification result? It is important to check the number of input reads, number or proportion mapped, the output file size and format, check out asmall preview of the result, and also look at logs or summary reports.
 
 3.  What is the smallest meaningful workflow slice you can run for your project this week?
 
@@ -158,6 +188,5 @@ Nothing yet
 \## 5. Next week
 
 I want to download a reference database, assign taxonomy, and make visualizations (taxa bar plot). I would also like to try more tools in QIIME, like calculating alpha diversity.
-
 
 \-
