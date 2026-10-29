@@ -1,5 +1,3 @@
 uniprot*
-
-/home/shared/8TB_HDD_03/mdailey2/Dailey-546/data/reference/silva-138.2-seqs.qza
-
-/home/shared/8TB_HDD_03/mdailey2/Dailey-546/data/reference/silva-138.2-taxonomy.qza
+/data/silva-138.2-classifier_klind.qza
+/data/sepp-refs-silva-128.qza

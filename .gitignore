@@ -18,3 +18,6 @@ output/week3/03.2-metabarcoding-workflow/demux.qza
 output/week3/03.2-metabarcoding-workflow/16s-demux.qza
 
 
+
+/data/silva-138.2-classifier_klind.qza
+/data/sepp-refs-silva-128.qza
