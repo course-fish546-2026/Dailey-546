@@ -6,7 +6,7 @@
 
 ## Endpoint
 
-By Week 10 I will have: <one sentence>.
+By Week 10, I will have developed a reproducible 16S rRNA gene analysis workflow and generate preliminary visualizations of bacterial community diversity and composition across anatomical sites in zoo-housed and wild polar bears.
 
 ## Repository map
 

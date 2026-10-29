@@ -92,6 +92,47 @@ qiime dada2 denoise-paired \
   --o-denoising-stats 16s-dada2-stats.qza \
   --o-base-transition-stats 16s-dada2-error-model.qza
 ```
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ../output/week3/03.2-metabarcoding-workflow
+
+qiime metadata tabulate \
+  --m-input-file 16s-dada2-stats.qza \
+  --o-visualization 16s-dada2-stats.qzv
+```
+```{bash}
+#downloading SILVA database, which is the reference database that is often best for 16s data. This is not classifier trained for my specific primers, so it won't be specific to the V3-V4 region I targeted
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+mkdir -p ../data/reference
+cd ../data/reference
+
+if [ ! -f silva-138.2-seqs.qza ] || [ ! -f silva-138.2-taxonomy.qza ]; then
+  qiime rescript get-silva-data \
+    --p-version '138.2' \
+    --p-target 'SSURef_NR99' \
+    --o-silva-sequences silva-138.2-seqs.qza \
+    --o-silva-taxonomy silva-138.2-taxonomy.qza
+fi
+```
+```{bash}
+#
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ../output/week3/03.2-metabarcoding-workflow
+
+qiime feature-classifier classify-consensus-vsearch \
+  --i-query 16s-rep-seqs.qza \
+  --i-reference-reads ../../data/reference/silva-138.2-seqs.qza \
+  --i-reference-taxonomy ../../data/reference/silva-138.2-taxonomy.qza \
+  --p-perc-identity 0.9 \
+  --p-maxrejects 100 \
+  --p-threads 16 \
+  --o-classification 16s-taxonomy.qza \
+  --o-search-results 16s-vsearch-hits.qza
+```
+
 
 \## 2. Reflection questions
 
