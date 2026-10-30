@@ -97,16 +97,12 @@ dir.create("output/week4", recursive = TRUE, showWarnings = FALSE)
 write.csv(res_df, "output/week4/dge-results.csv", row.names = FALSE)
 ```
 
-|                      | RNA-seq                                                                                                             | my project                                                                                                 |
-<<<<<<< HEAD
-|----------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-=======
-|---------------|------------------------------|----------------------------|
->>>>>>> 9dee55b (week 4 notebook .qmd and .html)
-| Input                | RNA-seq fastq reads                                                                                                 | 16s amplicon fastq reads                                                                                   |
-| Analysis ready table | transcript count table: transcripts + metadata                                                                      | ASV count table                                                                                            |
-| Model/summary        | using DeSEQ2 to find differentially expressed transcripts                                                           | using QIIME to generate information about community composition like alpha diversity, beta diversity, etc. |
-| Interpretation       | which transcripts are expressed and associated with different individual conditions (temperature, infection, etc.)? | how do bacterial communities differ between two populations of polar bears?                                |
+| Step                 | RNA-seq                                                                                                      | My project                                                                                                   |
+|------------------|-----------------------|-------------------------------|
+| Input                | RNA-seq FASTQ reads                                                                                          | 16S amplicon FASTQ reads                                                                                     |
+| Analysis-ready table | Gene or transcript count table + sample metadata                                                             | ASV count table + sample metadata and taxonomy                                                               |
+| Model/summary        | DESeq2 to identify differentially expressed genes or transcripts                                             | QIIME2 to summarize community composition, alpha diversity, and beta diversity                               |
+| Interpretation       | Which genes or transcripts differ in expression between conditions, such as temperature or infection status? | How do bacterial communities differ between zoo-housed and wild polar bears, accounting for anatomical site? |
 
 ## 2. Reflection questions
 

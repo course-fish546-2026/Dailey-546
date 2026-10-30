@@ -3192,8 +3192,42 @@ Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entr
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;output/week4&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(res_df, <span class="st">&quot;output/week4/dge-results.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="line-block">                     | RNA-seq | my project |</div>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD |———————-|———————————————————————————————————————|————————————————————————————————————| ======= |—————|——————————|—————————-| &gt;&gt;&gt;&gt;&gt;&gt;&gt; 9dee55b (week 4 notebook .qmd and .html) | Input | RNA-seq fastq reads | 16s amplicon fastq reads | | Analysis ready table | transcript count table: transcripts + metadata | ASV count table | | Model/summary | using DeSEQ2 to find differentially expressed transcripts | using QIIME to generate information about community composition like alpha diversity, beta diversity, etc. | | Interpretation | which transcripts are expressed and associated with different individual conditions (temperature, infection, etc.)? | how do bacterial communities differ between two populations of polar bears? |</p>
+<table class="table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 31%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>RNA-seq</th>
+<th>My project</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Input</td>
+<td>RNA-seq FASTQ reads</td>
+<td>16S amplicon FASTQ reads</td>
+</tr>
+<tr class="even">
+<td>Analysis-ready table</td>
+<td>Gene or transcript count table + sample metadata</td>
+<td>ASV count table + sample metadata and taxonomy</td>
+</tr>
+<tr class="odd">
+<td>Model/summary</td>
+<td>DESeq2 to identify differentially expressed genes or transcripts</td>
+<td>QIIME2 to summarize community composition, alpha diversity, and beta diversity</td>
+</tr>
+<tr class="even">
+<td>Interpretation</td>
+<td>Which genes or transcripts differ in expression between conditions, such as temperature or infection status?</td>
+<td>How do bacterial communities differ between zoo-housed and wild polar bears, accounting for anatomical site?</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="reflection-questions" class="level2">
 <h2 class="anchored" data-anchor-id="reflection-questions">2. Reflection questions</h2>
