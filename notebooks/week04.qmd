@@ -1,0 +1,131 @@
+---
+title: "Week 04: RNA-seq and Differential Expression"
+author: "Kenna"
+date: 10/30/26
+---
+
+```{=html}
+<!--
+Before you push, check:
+  [ ] this .qmd AND its rendered .html are both committed
+  [ ] rendered from a clean session (Session > Restart R, then Render)
+  [ ] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
+  [ ] tables and figures are saved under output/weekNN/, not only printed here
+  [ ] nothing under data/raw/ is committed
+  [ ] software, platform, and container/environment are named
+  [ ] the commit link is posted as a comment on your Project Proposal issue
+Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entry-rubric
+-->
+```
+## 1. This week's analysis
+
+```{r}
+install.packages("BiocManager")
+BiocManager::install("DESeq2")
+```
+
+```{r}
+### 1. Load the counts
+
+library(DESeq2)
+
+counts_url <- "https://raw.githubusercontent.com/RobertsLab/paper-tanner-crab/master/analyses/kallisto-0812/kallisto-0812.isoform.counts.matrix"
+counts <- read.delim(counts_url, row.names = 1, check.names = FALSE)
+
+# kallisto gives estimated counts with decimals; DESeq2 needs whole numbers
+counts <- round(counts)
+
+dim(counts)   # 78,649 transcripts x 4 samples
+head(counts)
+```
+
+```{r}
+coldata <- data.frame(
+  row.names   = colnames(counts),
+  infection   = factor(c("uninfected", "infected", "uninfected", "infected")),
+  temperature = factor(c("cold", "cold", "warm", "warm"))
+)
+coldata
+
+# Stop here if the names don't line up
+stopifnot(all(rownames(coldata) == colnames(counts)))
+```
+
+```{r}
+### 3. Build the DESeq2 object
+
+dds <- DESeqDataSetFromMatrix(countData = counts,
+                              colData   = coldata,
+                              design    = ~ infection)
+
+# Levels are alphabetical by default, so "infected" would be the reference.
+# Make "uninfected" the baseline so a positive log2FoldChange means higher in infected crabs.
+dds$infection <- relevel(dds$infection, ref = "uninfected")
+
+# Drop transcripts with almost no reads
+dds <- dds[rowSums(counts(dds)) >= 10, ]
+nrow(dds)
+```
+
+```{r}
+### 4. Check sample structure before testing anything else
+vsd <- vst(dds, blind = TRUE)
+plotPCA(vsd, intgroup = c("infection", "temperature"))
+```
+
+```{r}
+### 5. Test for differential expression
+
+dds <- DESeq(dds)
+res <- results(dds, alpha = 0.05)
+
+summary(res)
+sum(res$padj < 0.05, na.rm = TRUE)   # number of significant transcripts
+```
+
+```{r}
+### 6. Plot and save results
+
+plotMA(res, ylim = c(-10, 10), main = "Infected vs uninfected")
+
+res_df <- as.data.frame(res)
+res_df$transcript_id <- rownames(res_df)
+res_df <- res_df[order(res_df$padj), ]
+head(res_df)
+
+dir.create("output/week4", recursive = TRUE, showWarnings = FALSE)
+write.csv(res_df, "output/week4/dge-results.csv", row.names = FALSE)
+```
+
+|                      | RNA-seq                                                                                                             | my project                                                                                                 |
+|----------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Input                | RNA-seq fastq reads                                                                                                 | 16s amplicon fastq reads                                                                                   |
+| Analysis ready table | transcript count table: transcripts + metadata                                                                      | ASV count table                                                                                            |
+| Model/summary        | using DeSEQ2 to find differentially expressed transcripts                                                           | using QIIME to generate information about community composition like alpha diversity, beta diversity, etc. |
+| Interpretation       | which transcripts are expressed and associated with different individual conditions (temperature, infection, etc.)? | how do bacterial communities differ between two populations of polar bears?                                |
+
+## 2. Reflection questions
+
+1.  Why is sample metadata as important as the count matrix?
+
+Without the metadata, we cannot make connections between the individual and the transcripts. For example, if we did not know an individual crab was infected or subject to different temperatures but it was expressing a specific gene, we wouldn't be able to connect that expression to their condition.
+
+2.  What is the difference between statistical significance and biological importance in differential expression?
+
+A statistically significant change is just based on a p value, often \< 0.05. However, the changes happening may be statistically significant but too small to have an impact in biological importance. One gene expression may be significant in analyses but have little to no impact on organism functioning.
+
+3.  If your project is not RNA-seq, what is the equivalent of a count matrix and a results table in your workflow?
+
+In my 16s metabarcoding project, the equivalent of the count matrix is probably the ASV table identifying unique sequences for each sample and then the assigned taxonomy which is essentially just telling us what ASVs were detected in each sample, the number of reads, and then what that can be assigned to taxonomically. A results table could either be the read count table with assigned taxonomy to each sample, or you could go deeper and identify alpha diversity values for each sample, taking the taxonomy data and exploring that further.
+
+## 3. Project progress
+
+I downloaded the SILVA classifier pre-trained from the lab who sequenced my data, but then realized it was not compatible with my version of QIIME so I have to download the silva reference database and re-train it for my primers. I identified how to do this and started that process but am currently still working through that. My goal for the end of the week is to have that ready to go and taxonomy assigned.
+
+## 4. Where I'm stuck
+
+I downloaded the SILVA classifier from the lab who sequenced my data but it was on a different version (older) of QIIME2 so I just decided to get the experience downloading the silva reference db and retraining it for my primers. So I'm working through that right now.
+
+## 5. Next week
+
+Definitely have taxonomy assigned if not already done, then start generating visualizations like alpha diversity, pcoa. I really want to figure out if there is a way to do multivariate analyses using QIIME, like creating a visualization looking at alpha diversity and how it varies across population AND anatomical site.

@@ -110,7 +110,6 @@ qiime metadata tabulate \
 #downloading SILVA database, which is the reference database that is often best for 16s data. This is not classifier trained for my specific primers, so it won't be specific to the V3-V4 region I targeted
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
 conda activate qiime2-2026.7
-mkdir -p ../data/reference
 cd ../data/reference
 
 if [ ! -f silva-138.2-seqs.qza ] || [ ! -f silva-138.2-taxonomy.qza ]; then
@@ -120,6 +119,25 @@ if [ ! -f silva-138.2-seqs.qza ] || [ ! -f silva-138.2-taxonomy.qza ]; then
     --o-silva-sequences silva-138.2-seqs.qza \
     --o-silva-taxonomy silva-138.2-taxonomy.qza
 fi
+
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546/data/reference
+
+# Convert reference RNA sequences to DNA
+qiime rescript reverse-transcribe \
+  --i-rna-sequences silva-138.2-seqs.qza \
+  --o-dna-sequences silva-138.2-dna-seqs.qza
+  
+qiime feature-classifier extract-reads \
+  --i-sequences silva-138.2-dna-seqs.qza \
+  --p-f-primer CCTACGGGNGGCWGCAG \
+  --p-r-primer GACTACHVGGGTATCTAATCC \
+  --o-reads silva-138.2-klind-seqs.qza \
+  --o-read-extraction-stats silva-138.2-klind-extraction-stats.qza
 ```
 
 ```{bash}
