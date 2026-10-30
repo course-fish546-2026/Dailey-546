@@ -3111,20 +3111,16 @@ vertical-align: -.125em;
 </header>
 
 
-<!--
-Before you push, check:
   [x] this .qmd AND its rendered .html are both committed
-  [x] rendered from a clean session (Session > Restart R, then Render)
+  [x] rendered from a clean session (Session &gt; Restart R, then Render)
   [x] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
   [x] tables and figures are saved under output/weekNN/, not only printed here
   [x] nothing under data/raw/ is committed
   [x] software, platform, and container/environment are named
   [x] the commit link is posted as a comment on your Project Proposal issue
 Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entry-rubric
--->
 <section id="this-weeks-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="this-weeks-analysis">1. This week’s analysis</h2>
-<p>Done on Raven, R software version 4.2.3</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;BiocManager&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;DESeq2&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3196,42 +3192,8 @@ Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entr
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;output/week4&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(res_df, <span class="st">&quot;output/week4/dge-results.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<table class="table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 41%">
-<col style="width: 38%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th>RNA-seq</th>
-<th>my project</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Input</td>
-<td>RNA-seq fastq reads</td>
-<td>16s amplicon fastq reads</td>
-</tr>
-<tr class="even">
-<td>Analysis ready table</td>
-<td>transcript count table: transcripts + metadata</td>
-<td>ASV count table</td>
-</tr>
-<tr class="odd">
-<td>Model/summary</td>
-<td>using DeSEQ2 to find differentially expressed transcripts</td>
-<td>using QIIME to generate information about community composition like alpha diversity, beta diversity, etc.</td>
-</tr>
-<tr class="even">
-<td>Interpretation</td>
-<td>which transcripts are expressed and associated with different individual conditions (temperature, infection, etc.)?</td>
-<td>how do bacterial communities differ between two populations of polar bears?</td>
-</tr>
-</tbody>
-</table>
+<div class="line-block">                     | RNA-seq | my project |</div>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD |———————-|———————————————————————————————————————|————————————————————————————————————| ======= |—————|——————————|—————————-| &gt;&gt;&gt;&gt;&gt;&gt;&gt; 9dee55b (week 4 notebook .qmd and .html) | Input | RNA-seq fastq reads | 16s amplicon fastq reads | | Analysis ready table | transcript count table: transcripts + metadata | ASV count table | | Model/summary | using DeSEQ2 to find differentially expressed transcripts | using QIIME to generate information about community composition like alpha diversity, beta diversity, etc. | | Interpretation | which transcripts are expressed and associated with different individual conditions (temperature, infection, etc.)? | how do bacterial communities differ between two populations of polar bears? |</p>
 </section>
 <section id="reflection-questions" class="level2">
 <h2 class="anchored" data-anchor-id="reflection-questions">2. Reflection questions</h2>

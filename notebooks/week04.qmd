@@ -1,30 +1,13 @@
 ---
-<<<<<<< HEAD
-title: "Week 04: RNA-seq and Differential Expression"
-author: "Kenna"
-date: 10/30/26
-=======
 title: "Week 04 - RNA-seq and differential expression"
 format: html
 author: Kenna
 data: 10/20/2026
 execute:
   eval: false
->>>>>>> 9dee55b (week 4 notebook .qmd and .html)
 ---
 
 ```{=html}
-<!--
-Before you push, check:
-<<<<<<< HEAD
-  [ ] this .qmd AND its rendered .html are both committed
-  [ ] rendered from a clean session (Session > Restart R, then Render)
-  [ ] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
-  [ ] tables and figures are saved under output/weekNN/, not only printed here
-  [ ] nothing under data/raw/ is committed
-  [ ] software, platform, and container/environment are named
-  [ ] the commit link is posted as a comment on your Project Proposal issue
-=======
   [x] this .qmd AND its rendered .html are both committed
   [x] rendered from a clean session (Session > Restart R, then Render)
   [x] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
@@ -32,9 +15,7 @@ Before you push, check:
   [x] nothing under data/raw/ is committed
   [x] software, platform, and container/environment are named
   [x] the commit link is posted as a comment on your Project Proposal issue
->>>>>>> 9dee55b (week 4 notebook .qmd and .html)
 Rubric: https://sr320.github.io/course-fish546-2026/how-we-work.html#weekly-entry-rubric
--->
 ```
 ## 1. This week's analysis
 
