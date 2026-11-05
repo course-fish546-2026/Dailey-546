@@ -81,9 +81,6 @@ METADATA="data/metadata2.tsv"  # Replace with your metadata path
 OUT="output/project"
 
 
-# 1. Build a phylogenetic tree using SEPP.
-# Skip this command if you already generated this tree.
-
 qiime fragment-insertion sepp \
   --i-representative-sequences "$SEQS" \
   --i-reference-database data/sepp-refs-silva-128.qza \
@@ -92,20 +89,12 @@ qiime fragment-insertion sepp \
   --o-placements "$OUT/insertion-placements.qza"
 
 
-# 2. Remove ASVs that were not placed in the tree.
-# Inspect the removed table to assess how many reads were excluded.
-
 qiime fragment-insertion filter-features \
   --i-table "$TABLE" \
   --i-tree "$OUT/insertion-tree.qza" \
   --o-filtered-table "$OUT/table-in-tree.qza" \
   --o-removed-table "$OUT/table-not-in-tree.qza"
 
-
-# 3. Calculate alpha and beta diversity.
-# This rarefies the filtered table to 30,000 reads per sample.
-# Samples below 30,000 after filtering are excluded.
-# Use a new output directory if this directory already exists.
 
 qiime diversity core-metrics-phylogenetic \
   --i-table "$OUT/table-in-tree.qza" \
@@ -115,8 +104,6 @@ qiime diversity core-metrics-phylogenetic \
   --output-dir "$OUT/core-metrics-30k"
 
 
-# 4. Combine sample-level alpha diversity values into one table.
-
 qiime metadata tabulate \
   --m-input-file "$OUT/core-metrics-30k/observed_features_vector.qza" \
   --m-input-file "$OUT/core-metrics-30k/shannon_vector.qza" \
@@ -124,9 +111,6 @@ qiime metadata tabulate \
   --m-input-file "$OUT/core-metrics-30k/faith_pd_vector.qza" \
   --o-visualization "$OUT/alpha-diversity-core-30k.qzv"
 
-
-# 5. Explore alpha diversity by categorical metadata groups.
-# These are preliminary comparisons treating samples as independent.
 
 qiime diversity alpha-group-significance \
   --i-alpha-diversity "$OUT/core-metrics-30k/observed_features_vector.qza" \
