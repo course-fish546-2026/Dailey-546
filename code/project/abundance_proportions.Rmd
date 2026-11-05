@@ -1,0 +1,69 @@
+---
+title: "abundance_proportions"
+output: html_document
+date: "2026-11-05"
+---
+```{bash}
+
+
+TABLE="output/week3/03.2-metabarcoding-workflow/16s-table.qza"
+TAXONOMY="output/project/16s-taxonomy.qza"
+OUT="output/project/relative-abundance"
+
+mkdir -p "$OUT"
+
+# 1. Combine ASVs belonging to the same genus
+qiime taxa collapse \
+  --i-table "$TABLE" \
+  --i-taxonomy "$TAXONOMY" \
+  --p-level 6 \
+  --o-collapsed-table "$OUT/genus-counts.qza"
+
+
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+TABLE="output/week3/03.2-metabarcoding-workflow/16s-table.qza"
+TAXONOMY="output/project/16s-taxonomy.qza"
+OUT="output/project/relative-abundance"
+
+# 2. Convert counts to proportions within each sample
+qiime feature-table relative-frequency \
+  --i-table "$OUT/genus-counts.qza" \
+  --o-relative-frequency-table "$OUT/genus-proportions.qza"
+
+
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+TABLE="output/week3/03.2-metabarcoding-workflow/16s-table.qza"
+TAXONOMY="output/project/16s-taxonomy.qza"
+OUT="output/project/relative-abundance"
+# 3. Export the table
+qiime tools export \
+  --input-path "$OUT/genus-proportions.qza" \
+  --output-path "$OUT/exported"
+
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+TABLE="output/week3/03.2-metabarcoding-workflow/16s-table.qza"
+TAXONOMY="output/project/16s-taxonomy.qza"
+OUT="output/project/relative-abundance"
+# 4. Convert BIOM to a table you can open in Excel or R
+biom convert \
+  -i "$OUT/exported/feature-table.biom" \
+  -o "$OUT/genus-proportions.tsv" \
+  --to-tsv
+
+```
+

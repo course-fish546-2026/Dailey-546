@@ -1,0 +1,29 @@
+---
+title: "treponema_blast"
+output: html_document
+date: "2026-11-05"
+---
+i want to run NCBI blast on all treponema specific sequences, generating a subset of those to then get a FASTA file and put into NCBI blast
+```{bash}
+
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime taxa filter-seqs \
+  --i-sequences output/week3/03.2-metabarcoding-workflow/16s-rep-seqs.qza \
+  --i-taxonomy output/project/16s-taxonomy.qza \
+  --p-include "g__Treponema" \
+  --o-filtered-sequences output/project/treponema-seqs.qza
+```
+exporting as FASTA 
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime tools export \
+  --input-path output/project/treponema-seqs.qza \
+  --output-path output/project/treponema-fasta
+```
+

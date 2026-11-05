@@ -77,7 +77,7 @@ cd ~/Dailey-546
 # Define paths
 TABLE="output/week3/03.2-metabarcoding-workflow/16s-table.qza"
 SEQS="output/week3/03.2-metabarcoding-workflow/16s-rep-seqs.qza"
-METADATA="data/metadata2.tsv"  # Replace with your metadata path
+METADATA="data/metadata2.tsv" 
 OUT="output/project"
 
 
@@ -133,4 +133,6 @@ qiime diversity alpha-group-significance \
   --o-visualization "$OUT/core-metrics-30k/faith-pd-groups.qzv"
 ```
 
+
+```
 
