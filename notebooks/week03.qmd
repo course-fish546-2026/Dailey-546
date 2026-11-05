@@ -132,29 +132,13 @@ qiime rescript reverse-transcribe \
   --i-rna-sequences silva-138.2-seqs.qza \
   --o-dna-sequences silva-138.2-dna-seqs.qza
   
+#get primer inof
 qiime feature-classifier extract-reads \
   --i-sequences silva-138.2-dna-seqs.qza \
   --p-f-primer CCTACGGGNGGCWGCAG \
   --p-r-primer GACTACHVGGGTATCTAATCC \
   --o-reads silva-138.2-klind-seqs.qza \
   --o-read-extraction-stats silva-138.2-klind-extraction-stats.qza
-```
-
-```{bash}
-#
-source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
-conda activate qiime2-2026.7
-cd ../output/week3/03.2-metabarcoding-workflow
-
-qiime feature-classifier classify-consensus-vsearch \
-  --i-query 16s-rep-seqs.qza \
-  --i-reference-reads ../../data/reference/silva-138.2-seqs.qza \
-  --i-reference-taxonomy ../../data/reference/silva-138.2-taxonomy.qza \
-  --p-perc-identity 0.9 \
-  --p-maxrejects 100 \
-  --p-threads 16 \
-  --o-classification 16s-taxonomy.qza \
-  --o-search-results 16s-vsearch-hits.qza
 ```
 
 ```{bash}
@@ -176,12 +160,69 @@ qiime tools peek ../data/silva-138.2-classifier_klind.qza
 ```{bash}
 source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
 conda activate qiime2-2026.7
-qiime feature-classifier classify-sklearn \
-  --i-classifier /home/shared/8TB_HDD_03/mdailey2/Dailey-546/data/silva-138.2-classifier_klind.qza \
-  --i-reads ../output/week3/03.2-metabarcoding-workflow/16s-rep-seqs.qza \
-  --p-n-jobs 16 \
-  --o-classification taxonomy.qza
+cd ~/Dailey-546/data/reference
+
+qiime feature-classifier fit-classifier-naive-bayes \
+  --i-reference-reads silva-138.2-klind-seqs.qza \
+  --i-reference-taxonomy silva-138.2-taxonomy.qza \
+  --o-classifier silva-138.2-klind-classifier.qza
+
 ```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+mkdir -p output/project
+
+qiime feature-classifier classify-sklearn \
+  --i-classifier data/reference/silva-138.2-klind-classifier.qza \
+  --i-reads output/week3/03.2-metabarcoding-workflow/16s-rep-seqs.qza \
+  --p-n-jobs 16 \
+  --o-classification output/project/16s-taxonomy.qza
+
+qiime metadata tabulate \
+  --m-input-file output/project/16s-taxonomy.qza \
+  --o-visualization output/project/16s-taxonomy.qzv
+
+```
+```{bash}
+#taxa barplot
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime taxa barplot \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --i-taxonomy output/project/16s-taxonomy.qza \
+  --m-metadata-file data/metadata2.tsv \
+  --o-visualization output/project/16s-taxa-barplot.qzv
+```
+
+```{bash}
+#alpha rarefaction
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+qiime diversity alpha-rarefaction \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --p-min-depth 10 \
+  --p-max-depth 100000 \
+  --p-steps 30 \
+  --o-visualization output/project/16s-alpha-rarefaction.qzv
+```  
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+qiime feature-table summarize \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --o-visualization output/project/16s-table-summary.qzv
+```
+
+
 
 \## 2. Reflection questions
 
@@ -189,7 +230,8 @@ qiime feature-classifier classify-sklearn \
 
 Assembling reads without a reference (de novo assembly) reconstructs longer DNA sequences by identifying overlaps among shorter reads and joining them together without any reference genome. Mapping aligns reads to an existing reference genome to determine where they likely originated.
 
-2.  What intermediate summary would you inspect before trusting a mapping or quantification result? It is important to check the number of input reads, number or proportion mapped, the output file size and format, check out asmall preview of the result, and also look at logs or summary reports.
+2.  What intermediate summary would you inspect before trusting a mapping or quantification result?
+It is important to check the number of input reads, number or proportion mapped, the output file size and format, check out asmall preview of the result, and also look at logs or summary reports.
 
 3.  What is the smallest meaningful workflow slice you can run for your project this week?
 

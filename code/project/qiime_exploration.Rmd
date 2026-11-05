@@ -1,0 +1,152 @@
+---
+title: "qiime_explore"
+output: html_document
+date: "2026-11-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime feature-table summarize \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --output-dir output/project/table-summary
+```
+
+Frequency per sample:
+
+Minimum frequency:	1,412
+1st quartile:	82,909.8
+Median frequency:	576,097
+3rd quartile:	1,183,855.5
+Maximum frequency:	4,028,406
+Mean frequency:	763,784.5
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime diversity alpha-rarefaction \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --p-min-depth 10 \
+  --p-max-depth 50000 \
+  --p-steps 30 \
+  --o-visualization output/project/16s-alpha-rarefaction.qzv
+```
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+
+qiime diversity alpha-rarefaction \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --p-min-depth 10 \
+  --p-max-depth 100000 \
+  --p-steps 30 \
+  --o-visualization output/project/16s-alpha-rarefaction.qzv
+```
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime diversity alpha-rarefaction \
+  --i-table output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --p-min-depth 10 \
+  --p-max-depth 150000 \
+  --p-steps 60 \
+  --o-visualization output/project/16s-alpha-rarefaction-150.qzv
+```
+
+Chose 30,000 reads for even sampling depth, ensures i am retaining as many samples as possible without losing rare taxa as much as possible.
+
+
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+# Define paths
+TABLE="output/week3/03.2-metabarcoding-workflow/16s-table.qza"
+SEQS="output/week3/03.2-metabarcoding-workflow/16s-rep-seqs.qza"
+METADATA="data/metadata2.tsv"  # Replace with your metadata path
+OUT="output/project"
+
+
+# 1. Build a phylogenetic tree using SEPP.
+# Skip this command if you already generated this tree.
+
+qiime fragment-insertion sepp \
+  --i-representative-sequences "$SEQS" \
+  --i-reference-database data/sepp-refs-silva-128.qza \
+  --p-threads 16 \
+  --o-tree "$OUT/insertion-tree.qza" \
+  --o-placements "$OUT/insertion-placements.qza"
+
+
+# 2. Remove ASVs that were not placed in the tree.
+# Inspect the removed table to assess how many reads were excluded.
+
+qiime fragment-insertion filter-features \
+  --i-table "$TABLE" \
+  --i-tree "$OUT/insertion-tree.qza" \
+  --o-filtered-table "$OUT/table-in-tree.qza" \
+  --o-removed-table "$OUT/table-not-in-tree.qza"
+
+
+# 3. Calculate alpha and beta diversity.
+# This rarefies the filtered table to 30,000 reads per sample.
+# Samples below 30,000 after filtering are excluded.
+# Use a new output directory if this directory already exists.
+
+qiime diversity core-metrics-phylogenetic \
+  --i-table "$OUT/table-in-tree.qza" \
+  --i-phylogeny "$OUT/insertion-tree.qza" \
+  --m-metadata-file "$METADATA" \
+  --p-sampling-depth 30000 \
+  --output-dir "$OUT/core-metrics-30k"
+
+
+# 4. Combine sample-level alpha diversity values into one table.
+
+qiime metadata tabulate \
+  --m-input-file "$OUT/core-metrics-30k/observed_features_vector.qza" \
+  --m-input-file "$OUT/core-metrics-30k/shannon_vector.qza" \
+  --m-input-file "$OUT/core-metrics-30k/evenness_vector.qza" \
+  --m-input-file "$OUT/core-metrics-30k/faith_pd_vector.qza" \
+  --o-visualization "$OUT/alpha-diversity-core-30k.qzv"
+
+
+# 5. Explore alpha diversity by categorical metadata groups.
+# These are preliminary comparisons treating samples as independent.
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity "$OUT/core-metrics-30k/observed_features_vector.qza" \
+  --m-metadata-file "$METADATA" \
+  --o-visualization "$OUT/core-metrics-30k/observed-asvs-groups.qzv"
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity "$OUT/core-metrics-30k/shannon_vector.qza" \
+  --m-metadata-file "$METADATA" \
+  --o-visualization "$OUT/core-metrics-30k/shannon-groups.qzv"
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity "$OUT/core-metrics-30k/evenness_vector.qza" \
+  --m-metadata-file "$METADATA" \
+  --o-visualization "$OUT/core-metrics-30k/evenness-groups.qzv"
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity "$OUT/core-metrics-30k/faith_pd_vector.qza" \
+  --m-metadata-file "$METADATA" \
+  --o-visualization "$OUT/core-metrics-30k/faith-pd-groups.qzv"
+```
+
+
