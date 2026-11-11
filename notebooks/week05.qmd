@@ -1,0 +1,152 @@
+---
+title: "week05 - genome annotation and genomic ranges"
+author: Kenna
+format: html
+editor: visual
+---
+
+```{html}
+
+[x] this .qmd AND its rendered .html are both committed
+
+[x] rendered from a clean session (Session > Restart R, then Render)
+
+[x] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
+
+[x] tables and figures are saved under output/weekNN/, not only printed here
+
+[x] nothing under data/raw/ is committed
+
+[x] software, platform, and container/environment are named
+
+[x] the commit link is posted as a comment on your Project Proposal issue
+
+```
+
+Using R studio 4.2.3 on Raven for this week's analysis:
+
+**1. This week's analysis**
+
+```{r}
+
+BiocManager::install(c("Biostrings", "GenomicRanges"))
+
+library(Biostrings)
+library(GenomicRanges)
+
+```
+
+```{r}
+dir.create("data/week05", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/week05", recursive = TRUE, showWarnings = FALSE)
+
+acc <- "NC_002980.1"
+download.file(paste0("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&rettype=fasta&retmode=text&id=", acc),
+              "data/week05/chinook-mito.fa")
+download.file(paste0("https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?db=nuccore&report=gff3&id=", acc),
+              "data/week05/chinook-mito.gff")
+
+genome <- readDNAStringSet("data/week05/chinook-mito.fa")
+names(genome) <- acc
+genome   # one circular sequence, 16,644 bp
+```
+
+```{r}
+gff <- read.delim("data/week05/chinook-mito.gff", header = FALSE, comment.char = "#",
+                  col.names = c("seqid", "source", "type", "start", "end",
+                                "score", "strand", "phase", "attributes"))
+table(gff$type)
+
+# Keep one row per feature and pull the gene product out of the attributes column
+features <- gff[gff$type %in% c("rRNA", "tRNA", "CDS", "D_loop"), ]
+features$product <- sub(".*product=([^;]*).*", "\\1", features$attributes)
+features$product[features$type == "D_loop"] <- "control region (D-loop)"
+features[, c("type", "start", "end", "strand", "product")]
+```
+
+```{r}
+feat_gr <- GRanges(seqnames = features$seqid,
+                   ranges   = IRanges(start = features$start, end = features$end),
+                   strand   = features$strand,
+                   type     = features$type,
+                   product  = features$product)
+feat_gr
+as.data.frame(table(feat_gr$type))   # features per type
+```
+
+```{r}
+primers <- data.frame(
+  marker  = c("MiFish-U", "Riaz 12S"),
+  forward = c("GTCGGTAAAACTCGTGCCAGC", "ACTGGGATTAGATACCCC"),
+  reverse = c("CATAGTGGGGTATCTAATCCCAGTTTG", "TAGAACAGGCTCCTCTAG")
+)
+
+find_amplicon <- function(fwd, rev, genome, max_mismatch = 2) {
+  f <- matchPattern(DNAString(fwd), genome[[1]], max.mismatch = max_mismatch)
+  r <- matchPattern(reverseComplement(DNAString(rev)), genome[[1]], max.mismatch = max_mismatch)
+  c(start = start(f)[1], end = end(r)[1])
+}
+
+amp <- t(mapply(find_amplicon, primers$forward, primers$reverse,
+                MoreArgs = list(genome = genome)))
+amp_gr <- GRanges(seqnames = acc,
+                  ranges   = IRanges(start = amp[, "start"], end = amp[, "end"]),
+                  marker   = primers$marker)
+amp_gr
+width(amp_gr)   # amplicon length, primers included
+
+```
+
+```{r}
+hits <- findOverlaps(amp_gr, feat_gr)
+
+annotated <- data.frame(
+  marker       = amp_gr$marker[queryHits(hits)],
+  amp_start    = start(amp_gr)[queryHits(hits)],
+  amp_end      = end(amp_gr)[queryHits(hits)],
+  feature_type = feat_gr$type[subjectHits(hits)],
+  product      = feat_gr$product[subjectHits(hits)],
+  feat_start   = start(feat_gr)[subjectHits(hits)],
+  feat_end     = end(feat_gr)[subjectHits(hits)]
+)
+annotated
+write.csv(annotated, "output/week05/amplicon-annotation.csv", row.names = FALSE)
+```
+
+```{r}
+bed <- data.frame(chrom = as.character(seqnames(amp_gr)),
+                  start = start(amp_gr) - 1,
+                  end   = end(amp_gr),
+                  name  = amp_gr$marker)
+bed
+write.table(bed, "~/Dailey-546/output/week5/amplicons.bed", sep = "\t", quote = FALSE,
+            row.names = FALSE, col.names = FALSE)
+```
+
+**2. Reflection questions**
+
+1\. Why do genome build and coordinate convention matter?
+
+Genome build is the version of the reference genome, and coordinate convention is how gene positions are counted and whether interval endpoints are included. Both of these aspects matter because assemblies change as sequences are added or corrected, so a gene or variant can have different coordinates across builds. Coordinate conventions are important because different file formats can describe the same region using different numbers, and can cause off by one errors. If you aren't paying attention to both genome build and coordinate convention, you could incorrectly annotate part of the genome, or miss an overlap between a gene and a feature.
+
+2\. What does an overlap between two genomic features show, and what does it not show?
+
+An overlap between 2 genomic features shows that they share some portion of the same genomic region. Overlap alone does not determine a functional relationship or causation, and does not prove the variant has any impact on gene expression.
+
+3\. What is the clearest current result, diagnostic, or proof-of-work you can show in your mid-quarter update?
+
+I think the clearest current result I can give is the PCA graph of the two polar bear populations showing separation suggesting their microbiomes could be significantly different from one another. Also showing the work I've done with the phylogenetic tree, and generating the other core metrics visualizations. I think the PCA graph is the most powerful result so far because it has taken my initial data and transformed it into something that can be actually interpreted.
+
+**3. Project progress**
+
+I assigned taxonomy and then started generating visualizations of the data. I also assigned phylogeny so I could generate the core metrics visualizations
+
+I also did some extra things this week using qiime that was super awesome. It was something I could have copied and pasted and done by hand but it would have taken me hours. With some simple code, I was instead able to quickly isolate ASVs by genus of interest (treponema) to get their representative sequences, export it as a FASTA and then run it against NCBI blast. Super quick and easy!
+
+**4. Where I'm stuck**
+
+I presented at GSS and got feedback that my PCA graph may be a horseshoe structure which could indicate problems. I'm not sure where to start diagnosing this problem.
+
+**5. Next week**
+
+I want to figure out my next steps. I think what I would like to do is start working with more sophisticated analyses like using maaslin2. My goal is to experiment with maaslin2, confuse myself adequately, and generate some questions on its use so I can get some experience playing around with it and then actually using it for a small chunk of analysis.

@@ -26,4 +26,29 @@ qiime tools export \
   --input-path output/project/treponema-seqs.qza \
   --output-path output/project/treponema-fasta
 ```
+```{bash}
+source /opt/anaconda/anaconda3/etc/profile.d/conda.sh
+conda activate qiime2-2026.7
+cd ~/Dailey-546
+
+qiime tools export \
+  --input-path output/week3/03.2-metabarcoding-workflow/16s-table.qza \
+  --output-path output/project/asv-counts
+
+biom convert \
+  -i output/project/asv-counts/feature-table.biom \
+  -o output/project/asv-counts/feature-table.tsv \
+  --to-tsv
+
+awk -F '\t' -v asv="fe6872f5cf0eefa1aecce3d39b912695" '
+  BEGIN { print "Sample ID\tReads" }
+  $1 == "#OTU ID" { split($0, sample, "\t") }
+  $1 == asv {
+    found = 1
+    for (i = 2; i <= NF; i++)
+      if ($i + 0 > 0) print sample[i] "\t" ($i + 0)
+  }
+  END { if (!found) print "ASV ID absent from this feature table." }
+' output/project/asv-counts/feature-table.tsv
+```
 
