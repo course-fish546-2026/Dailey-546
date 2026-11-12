@@ -1,0 +1,58 @@
+---
+title: "Week 06 - Variants"
+author: Kenna
+editor: visual
+date: 11/12/26
+---
+
+## 
+
+```{html}
+
+[x] this .qmd AND its rendered .html are both committed
+
+[x] rendered from a clean session (Session > Restart R, then Render)
+
+[x] paths are relative, not absolute: from notebooks/, use ../ (e.g. ../output/weekNN/)
+
+[x] tables and figures are saved under output/weekNN/, not only printed here
+
+[x] nothing under data/raw/ is committed
+
+[x] software, platform, and container/environment are named
+
+[x] the commit link is posted as a comment on your Project Proposal issue
+
+```
+
+### 1. This week's analysis
+
+*What is a VCF?*
+
+A Variant Call Format (VCF) file is a standardized, tab-delimited text file used in bioinformatics to store gene sequence and DNA variations (such as single nucleotide polymorphisms \[SNPs\], insertions, deletions, and structural variants).
+
+It is typically the end product of a next-generation sequencing (NGS) and variant-calling pipeline, where an individual's sequenced DNA is aligned against a reference genome to pinpoint differences.
+
+```{r}
+#downloading the VCF and population map
+dir.create("data/week06", recursive = TRUE, showWarnings = FALSE)
+dir.create("output/week06", recursive = TRUE, showWarnings = FALSE)
+
+base <- "https://raw.githubusercontent.com/course-fish546-2026/Roberts-546/main"
+download.file(paste0(base, "/output/04-stacks-demo/populations/populations.snps.vcf"),
+              "data/week06/eelgrass-demo.vcf")
+download.file(paste0(base, "/data/stacks-demo/popmap.tsv"),
+              "data/week06/popmap.tsv")
+```
+
+```{r}
+
+```
+
+### 2. Reflection questions
+
+### 3. Project progress
+
+### 4. Where I'm stuck
+
+### 5. Next week
