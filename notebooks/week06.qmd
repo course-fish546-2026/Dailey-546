@@ -25,6 +25,8 @@ date: 11/12/26
 
 ```
 
+Work done in R version 4.2.3 on Raven.
+
 ### 1. This week's analysis
 
 *What is a VCF?*
@@ -46,13 +48,171 @@ download.file(paste0(base, "/data/stacks-demo/popmap.tsv"),
 ```
 
 ```{r}
+# Read the header.
+#Lines starting with ## describe the file: the program that made it, and what each INFO and FORMAT field means.
+
+lines  <- readLines("data/week06/eelgrass-demo.vcf")
+header <- lines[startsWith(lines, "##")]
+header
 
 ```
 
+-   **INFO** describes the variant site across samples.
+
+    -   AD: the total read depth for each allele across samples
+
+    -   AF: the frequency of each alternate allele
+
+    -   DP: total read depth at the site
+
+    -   NS: number of samples with data at the site
+
+-   **FORMAT** tells you how to read the values in each sample column.
+
+    -   GT: genotype 0,0 is two reference alleles, 0,1 means one reference and one alternate allele, and 1,1 means two alternate alleles
+
+    -   AD: samples read depth for each allele
+
+    -   DP: sample's read depth at site
+
+    -   GQ: quality score for that sample's genotype call
+
+    -   GL: log10 likelihood for each possible genotype
+
+    -   HQ: two haplotype quality values
+
+This file has no QUAL score, meaning there is no site level quality score for that record, so no QUAL score to use for filtering. However, you can filter using different metrics like FORMAT/GQ to filter by genotype quality, or even filter by read depth for each sample at each site using FORMAT/DP.
+
+```{r}
+# Read the variant table.
+# After the header comes one row per SNP. The first nine columns describe the variant, and each column after that is a sample.
+vcf <- read.delim("data/week06/eelgrass-demo.vcf", comment.char = "",
+                  skip = length(header), check.names = FALSE)
+names(vcf)[1] <- "CHROM"   # was "#CHROM"
+dim(vcf)                   # 213 SNPs; 9 fixed columns + 20 samples
+vcf[1:3, 1:10]
+
+samples <- names(vcf)[10:ncol(vcf)]
+popmap  <- read.delim("data/week06/popmap.tsv", header = FALSE, col.names = c("sample", "pop"))
+stopifnot(all(popmap$sample == samples))
+```
+
+```{r}
+# Pull out genotypes and depth
+#Each sample cell looks like 0/1:15:9,6:40:.... The FORMAT column says what the pieces are: GT:DP:AD:GQ:GL. GT is the genotype (0 = REF allele, 1 = ALT allele, ./. = missing), and DP is the read depth.
+
+gt <- sapply(vcf[, samples], function(x) sub(":.*", "", x))
+# Missing genotypes ("./.") have no depth, so they become NA
+dp <- suppressWarnings(sapply(vcf[, samples],
+                              function(x) as.numeric(sub("^[^:]*:([^:]*):.*", "\\1", x))))
+rownames(gt) <- rownames(dp) <- vcf$ID
+table(gt)
+
+# Count ALT alleles per genotype: 0, 1, or 2
+alt <- apply(gt, 2, function(g) c("0/0" = 0, "0/1" = 1, "1/1" = 2)[g])
+rownames(alt) <- vcf$ID
+
+colSums(is.na(alt))   # missing genotypes per sample
+```
+
+```{r}
+# Summarize each SNP
+snps <- data.frame(
+  id         = vcf$ID,
+  locus      = vcf$CHROM,
+  pos        = vcf$POS,
+  n_called   = rowSums(!is.na(alt)),
+  mean_depth = rowMeans(dp, na.rm = TRUE),
+  alt_freq   = rowSums(alt, na.rm = TRUE) / (2 * rowSums(!is.na(alt)))
+)
+snps$maf <- pmin(snps$alt_freq, 1 - snps$alt_freq)   # minor allele frequency
+summary(snps)
+hist(snps$maf, breaks = 20, main = "Minor allele frequency", xlab = "MAF")
+```
+
+```{r}
+# Filter and count before and after
+#Keep SNPs genotyped in at least 18 of the 20 plants and with a minor allele frequency of at least 0.05
+keep <- snps$n_called >= 18 & snps$maf >= 0.05
+nrow(snps)   # before
+sum(keep)    # after
+table(called_18 = snps$n_called >= 18, maf_05 = snps$maf >= 0.05)
+
+```
+
+I started with 213 SNPs and kept 194. 19 of the SNPs were removed because fewer than 18 of the plants had a genotype recorded at those spots. Then, the 5% MAF filter took away nothing because at every SNP, the less common DNA version already made up at least 5% of the copies counted.
+
+```{r}
+# Compare the two sites
+# Most SNPs sit near the diagonal. About 19 differ between sites by more than 0.5 in allele frequency
+
+filtered <- snps[keep, ]
+is_pb <- popmap$pop == "PB"
+af <- function(a) rowSums(a, na.rm = TRUE) / (2 * rowSums(!is.na(a)))
+
+filtered$freq_PB   <- af(alt[keep, is_pb])
+filtered$freq_SJ   <- af(alt[keep, !is_pb])
+filtered$freq_diff <- abs(filtered$freq_PB - filtered$freq_SJ)
+filtered <- filtered[order(-filtered$freq_diff), ]
+head(filtered, 10)
+
+plot(filtered$freq_PB, filtered$freq_SJ, xlim = c(0, 1), ylim = c(0, 1),
+     xlab = "ALT allele frequency, PB", ylab = "ALT allele frequency, SJ",
+     pch = 19, col = ifelse(filtered$freq_diff > 0.5, "red", "grey40"))
+abline(0, 1, lty = 2)   # SNPs on this line have the same frequency at both sites
+
+write.csv(filtered, "output/week06/snp-summary-filtered.csv", row.names = FALSE)
+sum(filtered$freq_diff > 0.5)
+
+```
+
+````         
+```{r}
+old_keep <- with(snps, n_called >= 18 & maf >= 0.05)
+new_keep <- with(snps, n_called >= 20 & maf >= 0.05)
+
+data.frame(
+  min_called = c(18, 20),
+  snps_kept = c(sum(old_keep, na.rm = TRUE),
+                sum(new_keep, na.rm = TRUE)),
+  strongly_different_kept = c(
+    sum(old_keep & snps$strongly_different, na.rm = TRUE),
+    sum(new_keep & snps$strongly_different, na.rm = TRUE)
+  )
+)
+```
+
+Raising the minimum from 18 to 20 plants with a recorded genotype reduced the number of SNPs kept from 194 to 64, removing 130 more SNPs. The number of strongly different SNPs was zero under both thresholds.
+````
+
+#### Caveats
+
+With only 10 plants per site, I'd be cautious about reading too much into a difference at one SNP. Just a few plants can make a DNA variant look more common at one site than another, and that difference could happen by chance. A small sample size is always a difficulty in ecological studies, and makes it so hard to make decisions about what changes could demonstrate. Before calling any differences a sign of local adaptation, I'd want to sample more plants and see whether the same variant is more common at other sites with similar conditions. I'd also want to test whether plants with that variant survive or reproduce better under those conditions, so figuring out a way to study environmental conditions, SNP differences, and long term survival.
+
 ### 2. Reflection questions
+
+1.  What does a variant call represent?
+
+A variant call represents a detected difference (i.e. a mutation) in an individual's DNA sequence compared to a standard reference genome at a specific genomic coordinate.
+
+2.  How can read depth, genotype quality, or filtering thresholds change a biological interpretation?
+
+Read depth is how many sequencing reads cover a DNA position. If there are only a few reads, they might miss one of a plant's two DNA versions. Genotype quality tells you how confident the software is in the plant's genotype at that spot. If one site has more low-quality calls than the other, errors or missing data can make the sites look more or less genetically different than they really are.
+
+Filtering thresholds determine which SNPs you compare. In my analysis, requiring genotype calls for all 20 plants instead of at least 18 reduced the number of SNPs from 194 to 64. I found zero strongly different SNPs with either filter, meaning my result was the same under both rules, even though the stricter rule left you with far fewer SNPs to compare.
+
+3.  What is your strongest current project output, and what is the riskiest step remaining?
+
+My strongest current project output is my set of core metrics visualizations. The riskiest step is definitely expanding past this point as I move forward with analyses.
 
 ### 3. Project progress
 
+This week, I've made progress on my project by taking a step back and working on repo organization. I have deleted erroneous files, moved things where they should go, and am working on converting all my absolute paths to relative paths. I started working in Maaslin and exploring different packages for analysis. I also made a parallel repo on github for my project, so I can have it ready for further analyses of my MS thesis.
+
 ### 4. Where I'm stuck
 
+I'm having a hard time getting my relative paths to do what they are supposed to do in QIIME specifically. Not sure what I'm doing wrong, but it's kind of weird!
+
 ### 5. Next week
+
+More work on Maaslin! Figuring out how to build models that include population and anatomical site.
